@@ -1,0 +1,170 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id               Int      @id @default(autoincrement())
+  email            String   @unique
+  password         String
+  name             String
+  role             String
+  phone            String?
+  avatar           String?
+  twoFactorEnabled Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  deals            Deal[]
+  activities       Activity[]
+  notifications    NotificationSetting?
+  companyId        Int?
+  company          Company? @relation(fields: [companyId], references: [id])
+}
+
+model NotificationSetting {
+  id              Int     @id @default(autoincrement())
+  userId          Int     @unique
+  user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emailAlerts     Boolean @default(true)
+  pushAlerts      Boolean @default(true)
+  newLeadAlert    Boolean @default(true)
+  dealUpdates     Boolean @default(true)
+  weeklyReports   Boolean @default(true)
+  lowStockAlerts  Boolean @default(false)
+}
+
+model Company {
+  id        Int      @id @default(autoincrement())
+  name      String
+  industry  String?
+  size      String?
+  address   String?
+  users     User[]
+}
+
+model Subscription {
+  id              Int       @id @default(autoincrement())
+  plan            String    // "Free", "Pro", "Enterprise"
+  status          String    // "Active", "PastDue"
+  billingCycle    String    @default("Monthly")
+  nextRenewal     DateTime?
+  amount          Float
+  cardLast4       String?
+  cardExpiryMonth String?
+  cardExpiryYear  String?
+  cardName        String?
+}
+
+model AppInvoice {
+  id      String  @id
+  date    String
+  amount  String
+  status  String
+}
+
+model TeamMember {
+  id    Int    @id @default(autoincrement())
+  name  String
+  email String @unique
+  role  String
+}
+
+model Lead {
+  id         Int    @id @default(autoincrement())
+  name       String
+  email      String
+  company    String
+  phone      String?
+  status     String
+  value      String
+  source     String
+  avatar     String?
+  assignedTo String?
+}
+
+model Customer {
+  id         Int    @id @default(autoincrement())
+  name       String
+  contact    String
+  email      String
+  avatar     String?
+  totalSpent String
+  orders     Int
+  lastOrder  String
+  status     String
+}
+
+model Product {
+  id       Int     @id @default(autoincrement())
+  name     String
+  sku      String  @unique
+  category String
+  price    Float
+  stock    Int
+  maxStock Int
+  revenue  Float   @default(0)
+  orderItems OrderItem[]
+}
+
+model Order {
+  id       String   @id
+  customer String
+  date     String   // Kept as String to match existing usage, consider DateTime migration later
+  amount   Float
+  status   String
+  items    Int      // Total count cache
+  orderItems OrderItem[]
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float
+}
+
+// New Models for Sales Pipeline, Reports, and Analytics
+
+model Deal {
+  id          Int      @id @default(autoincrement())
+  company     String
+  value       Float
+  contact     String?
+  avatar      String?
+  daysInStage Int      @default(0)
+  probability Int      @default(0)
+  stage       String   // "lead", "qualified", "proposal", "negotiation", "won"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  closedAt    DateTime?
+  userId      Int?
+  user        User?    @relation(fields: [userId], references: [id])
+}
+
+model Report {
+  id        Int      @id @default(autoincrement())
+  name      String
+  category  String
+  frequency String
+  lastRun   DateTime?
+  filePath  String?
+  createdAt DateTime @default(now())
+}
+
+model Activity {
+  id          Int      @id @default(autoincrement())
+  description String
+  type        String   // e.g., "deal_won", "task_completed"
+  timestamp   DateTime @default(now())
+  userId      Int?
+  user        User?    @relation(fields: [userId], references: [id])
+}
