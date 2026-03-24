@@ -131,7 +131,7 @@ app.post('/api/roles', async (req, res) => {
 });
 
 app.delete('/api/roles/:id', async (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     try {
         // Get member to find email
         const member = await prisma.teamMember.findUnique({ where: { id } });
@@ -167,7 +167,7 @@ app.post('/api/leads', async (req, res) => {
 });
 
 app.put('/api/leads/:id', async (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     try {
         const updatedLead = await prisma.lead.update({
             where: { id },
@@ -180,7 +180,7 @@ app.put('/api/leads/:id', async (req, res) => {
 });
 
 app.delete('/api/leads/:id', async (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     try {
         await prisma.lead.delete({ where: { id } });
         res.json({ message: "Deleted successfully" });
@@ -207,7 +207,7 @@ app.post('/api/customers', async (req, res) => {
 });
 
 app.delete('/api/customers/:id', async (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     try {
         await prisma.customer.delete({ where: { id } });
         res.json({ message: "Deleted successfully" });
@@ -234,7 +234,7 @@ app.post('/api/products', async (req, res) => {
 });
 
 app.put('/api/products/:id', async (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     try {
         const updatedProduct = await prisma.product.update({
             where: { id },
@@ -247,7 +247,7 @@ app.put('/api/products/:id', async (req, res) => {
 });
 
 app.delete('/api/products/:id', async (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     try {
         await prisma.product.delete({ where: { id } });
         res.json({ message: "Deleted successfully" });
@@ -431,7 +431,7 @@ app.post('/api/deals', async (req, res) => {
 });
 
 app.put('/api/deals/:id', async (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     const { stage, value, daysInStage, probability, company, contact } = req.body;
     try {
         const data = {};
@@ -471,7 +471,7 @@ app.put('/api/deals/:id', async (req, res) => {
 });
 
 app.delete('/api/deals/:id', async (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     try {
         await prisma.deal.delete({ where: { id } });
         io.emit('dashboard_update');
@@ -511,7 +511,7 @@ app.post('/api/reports', async (req, res) => {
 });
 
 app.put('/api/reports/:id/run', async (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     try {
         const updatedReport = await prisma.report.update({
             where: { id },
@@ -524,7 +524,7 @@ app.put('/api/reports/:id/run', async (req, res) => {
 });
 
 app.delete('/api/reports/:id', async (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     try {
         await prisma.report.delete({ where: { id } });
         res.json({ message: "Deleted successfully" });
@@ -537,7 +537,7 @@ app.delete('/api/reports/:id', async (req, res) => {
 
 app.post('/api/profile/:id/password', async (req, res) => {
     try {
-        const id = parseInt(req.params.id);
+        const id = req.params.id;
         const { currentPassword, newPassword } = req.body;
 
         const user = await prisma.user.findUnique({ where: { id } });
@@ -557,7 +557,7 @@ app.post('/api/profile/:id/password', async (req, res) => {
 
 app.post('/api/profile/:id/2fa', async (req, res) => {
     try {
-        const id = parseInt(req.params.id);
+        const id = req.params.id;
         await prisma.user.update({
             where: { id },
             data: { twoFactorEnabled: true }
@@ -595,7 +595,7 @@ app.post('/api/team', async (req, res) => {
 
 app.put('/api/team/:id', async (req, res) => {
     try {
-        const id = parseInt(req.params.id);
+        const id = req.params.id;
         const updated = await prisma.user.update({
             where: { id },
             data: req.body
@@ -608,7 +608,7 @@ app.put('/api/team/:id', async (req, res) => {
 
 app.get('/api/profile/:id', async (req, res) => {
     try {
-        const id = parseInt(req.params.id);
+        const id = req.params.id;
         let user = await prisma.user.findUnique({ where: { id }, include: { notifications: true, company: true } });
         if (!user) {
             // fallback: return first user or empty
@@ -622,7 +622,7 @@ app.get('/api/profile/:id', async (req, res) => {
 
 app.put('/api/profile/:id', async (req, res) => {
     try {
-        const id = parseInt(req.params.id);
+        const id = req.params.id;
         const { name, email, phone, role, avatar, twoFactorEnabled } = req.body;
         const updated = await prisma.user.update({
             where: { id },
@@ -636,7 +636,7 @@ app.put('/api/profile/:id', async (req, res) => {
 
 app.post('/api/profile/:id/notifications', async (req, res) => {
     try {
-        const id = parseInt(req.params.id);
+        const id = req.params.id;
         const data = req.body;
 
         const existing = await prisma.notificationSetting.findUnique({ where: { userId: id } });
@@ -654,7 +654,7 @@ app.post('/api/profile/:id/notifications', async (req, res) => {
 
 app.put('/api/company/:id', async (req, res) => {
     try {
-        const id = parseInt(req.params.id);
+        const id = req.params.id;
         const data = req.body;
         // Upsert company
         const existing = await prisma.company.findUnique({ where: { id } });

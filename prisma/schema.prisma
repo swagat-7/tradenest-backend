@@ -6,12 +6,12 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id               Int      @id @default(autoincrement())
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
   email            String   @unique
   password         String
   name             String
@@ -23,13 +23,13 @@ model User {
   deals            Deal[]
   activities       Activity[]
   notifications    NotificationSetting?
-  companyId        Int?
+  companyId        String?  @db.ObjectId
   company          Company? @relation(fields: [companyId], references: [id])
 }
 
 model NotificationSetting {
-  id              Int     @id @default(autoincrement())
-  userId          Int     @unique
+  id              String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String  @unique @db.ObjectId
   user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   emailAlerts     Boolean @default(true)
   pushAlerts      Boolean @default(true)
@@ -40,7 +40,7 @@ model NotificationSetting {
 }
 
 model Company {
-  id        Int      @id @default(autoincrement())
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
   name      String
   industry  String?
   size      String?
@@ -49,7 +49,7 @@ model Company {
 }
 
 model Subscription {
-  id              Int       @id @default(autoincrement())
+  id              String  @id @default(auto()) @map("_id") @db.ObjectId
   plan            String    // "Free", "Pro", "Enterprise"
   status          String    // "Active", "PastDue"
   billingCycle    String    @default("Monthly")
@@ -62,21 +62,21 @@ model Subscription {
 }
 
 model AppInvoice {
-  id      String  @id
+  id      String  @id @map("_id")
   date    String
   amount  String
   status  String
 }
 
 model TeamMember {
-  id    Int    @id @default(autoincrement())
+  id    String  @id @default(auto()) @map("_id") @db.ObjectId
   name  String
   email String @unique
   role  String
 }
 
 model Lead {
-  id         Int    @id @default(autoincrement())
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
   name       String
   email      String
   company    String
@@ -89,7 +89,7 @@ model Lead {
 }
 
 model Customer {
-  id         Int    @id @default(autoincrement())
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
   name       String
   contact    String
   email      String
@@ -101,7 +101,7 @@ model Customer {
 }
 
 model Product {
-  id       Int     @id @default(autoincrement())
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
   name     String
   sku      String  @unique
   category String
@@ -113,7 +113,7 @@ model Product {
 }
 
 model Order {
-  id       String   @id
+  id       String   @id @map("_id")
   customer String
   date     String   // Kept as String to match existing usage, consider DateTime migration later
   amount   Float
@@ -123,10 +123,10 @@ model Order {
 }
 
 model OrderItem {
-  id        Int     @id @default(autoincrement())
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
   orderId   String
   order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId Int
+  productId String  @db.ObjectId
   product   Product @relation(fields: [productId], references: [id])
   quantity  Int
   price     Float
@@ -135,7 +135,7 @@ model OrderItem {
 // New Models for Sales Pipeline, Reports, and Analytics
 
 model Deal {
-  id          Int      @id @default(autoincrement())
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
   company     String
   value       Float
   contact     String?
@@ -146,12 +146,12 @@ model Deal {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   closedAt    DateTime?
-  userId      Int?
+  userId      String?  @db.ObjectId
   user        User?    @relation(fields: [userId], references: [id])
 }
 
 model Report {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String
   category  String
   frequency String
@@ -161,10 +161,10 @@ model Report {
 }
 
 model Activity {
-  id          Int      @id @default(autoincrement())
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
   description String
   type        String   // e.g., "deal_won", "task_completed"
   timestamp   DateTime @default(now())
-  userId      Int?
+  userId      String?  @db.ObjectId
   user        User?    @relation(fields: [userId], references: [id])
 }
